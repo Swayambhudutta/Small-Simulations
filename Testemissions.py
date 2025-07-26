@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 # Set the title of the dashboard
 st.title("🌍 Emissions Dashboard")
@@ -32,17 +33,23 @@ if scope1 and scope2 and scope3:
         s2 = float(scope2)
         s3 = float(scope3)
 
-        emissions = [s1, s2, s3]
-        labels = ["Scope 1", "Scope 2", "Scope 3"]
+        emissions_data = pd.DataFrame({
+            "Scope": ["Scope 1", "Scope 2", "Scope 3"],
+            "Emissions (tCO2e)": [s1, s2, s3]
+        })
 
         st.subheader("📊 Emissions Bar Chart")
-        st.bar_chart(data={"Emissions (tCO2e)": emissions}, x=labels)
+        st.bar_chart(emissions_data.set_index("Scope"))
 
         st.subheader("🥧 Emissions Pie Chart")
-        total = sum(emissions)
-        percentages = [e / total for e in emissions]
         st.write("Pie Chart (approximate proportions)")
-        st.write({label: f"{round(p * 100, 1)}%" for label, p in zip(labels, percentages)})
+        total = s1 + s2 + s3
+        pie_data = {
+            "Scope 1": f"{(s1 / total) * 100:.1f}%",
+            "Scope 2": f"{(s2 / total) * 100:.1f}%",
+            "Scope 3": f"{(s3 / total) * 100:.1f}%"
+        }
+        st.write(pie_data)
 
     except ValueError:
         st.error("Please enter valid numeric values for all scopes.")
