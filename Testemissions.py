@@ -53,3 +53,43 @@ if scope1 and scope2 and scope3:
         st.error("Please enter valid numeric values for all scopes.")
 else:
     st.info("Please enter all three emission values to view the charts.")
+
+# Yearly trend input
+st.header("📈 Yearly Emissions Trend")
+
+years = st.multiselect("Select years to enter data for", options=[2020, 2021, 2022, 2023, 2024], default=[2020, 2021, 2022, 2023, 2024])
+
+if years:
+    scope1_trend = []
+    scope2_trend = []
+    scope3_trend = []
+
+    st.subheader("Enter yearly emissions for each scope (in tCO2e)")
+    for year in years:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            val1 = st.number_input(f"Scope 1 - {year}", key=f"s1_{year}", min_value=0.0)
+            scope1_trend.append(val1)
+        with col2:
+            val2 = st.number_input(f"Scope 2 - {year}", key=f"s2_{year}", min_value=0.0)
+            scope2_trend.append(val2)
+        with col3:
+            val3 = st.number_input(f"Scope 3 - {year}", key=f"s3_{year}", min_value=0.0)
+            scope3_trend.append(val3)
+
+    # Create dataframes for each scope
+    trend_df = pd.DataFrame({
+        "Year": years,
+        "Scope 1": scope1_trend,
+        "Scope 2": scope2_trend,
+        "Scope 3": scope3_trend
+    }).set_index("Year")
+
+    st.subheader("📉 Scope 1 Emissions Trend")
+    st.line_chart(trend_df[["Scope 1"]])
+
+    st.subheader("📉 Scope 2 Emissions Trend")
+    st.line_chart(trend_df[["Scope 2"]])
+
+    st.subheader("📉 Scope 3 Emissions Trend")
+    st.line_chart(trend_df[["Scope 3"]])
