@@ -1,5 +1,6 @@
+
 import streamlit as st
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 # Set the title of the dashboard
 st.title("🌍 Emissions Dashboard")
@@ -7,10 +8,10 @@ st.title("🌍 Emissions Dashboard")
 st.markdown("Enter your Scope 1, Scope 2, and Scope 3 emissions below (in **tCO2e**)")
 
 # Function to show progress bar beside input
-def input_with_progress(label):
+def input_with_progress(label, key):
     col1, col2 = st.columns([3, 1])
     with col1:
-        value = st.text_input(f"{label} (tCO2e)", key=label)
+        value = st.text_input(f"{label} (tCO2e)", key=key)
     with col2:
         if value:
             progress = min(len(value) / 10, 1.0)
@@ -22,9 +23,9 @@ def input_with_progress(label):
     return value
 
 # Input fields with progress bars
-scope1 = input_with_progress("Scope 1 Emissions")
-scope2 = input_with_progress("Scope 2 Emissions")
-scope3 = input_with_progress("Scope 3 Emissions")
+scope1 = input_with_progress("Scope 1 Emissions", "scope1")
+scope2 = input_with_progress("Scope 2 Emissions", "scope2")
+scope3 = input_with_progress("Scope 3 Emissions", "scope3")
 
 # Check if all values are entered and valid
 if scope1 and scope2 and scope3:
@@ -38,13 +39,17 @@ if scope1 and scope2 and scope3:
         colors = ["#FF5733", "#33C1FF", "#33FF99"]
 
         st.subheader("📊 Emissions Bar Chart")
-        bar_fig = go.Figure(data=[go.Bar(x=labels, y=emissions, marker_color=colors)])
-        bar_fig.update_layout(xaxis_title="Scope", yaxis_title="Emissions (tCO2e)")
-        st.plotly_chart(bar_fig)
+        fig_bar, ax_bar = plt.subplots()
+        ax_bar.bar(labels, emissions, color=colors)
+        ax_bar.set_ylabel("Emissions (tCO2e)")
+        ax_bar.set_title("Emissions by Scope")
+        st.pyplot(fig_bar)
 
         st.subheader("🥧 Emissions Pie Chart")
-        pie_fig = go.Figure(data=[go.Pie(labels=labels, values=emissions, marker=dict(colors=colors))])
-        st.plotly_chart(pie_fig)
+        fig_pie, ax_pie = plt.subplots()
+        ax_pie.pie(emissions, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+        ax_pie.axis('equal')
+        st.pyplot(fig_pie)
 
     except ValueError:
         st.error("Please enter valid numeric values for all scopes.")
